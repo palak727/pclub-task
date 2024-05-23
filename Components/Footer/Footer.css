@@ -1,0 +1,32 @@
+.footer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    flex-direction: column;
+    background-color: black;
+    color: white
+}
+.footer-logo{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.footer-logo p{
+    color: white;
+    font-size: 46px;
+    font-weight: 700;
+
+}
+.head h1
+{
+    font-size: 30px;
+    font-weight: 300;
+    align-items: center;
+    gap: 5px; 
+}
+.iitk{
+    align-items: center;
+    display: flx;
+   
+}
