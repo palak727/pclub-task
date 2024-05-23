@@ -10,7 +10,11 @@ all_product-contains all product information
 footer- adding iitk footer to each page
 ShopCategory- for classifying all product into coolers,matresses and cycles
 NewCollection-a part in Shop page showing all new items
-Cart: For adding products to cart
+Cart: For adding products to cart.\
+ Google drive Link-https://drive.google.com/open?id=1-V6hUBISvxexzsm-u5TcC3_br7h-G7tu&usp=drive_fs
+
+
+
 
 
  
