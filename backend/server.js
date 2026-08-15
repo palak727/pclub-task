@@ -3,6 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import connectDB from './config/db.js';
@@ -59,8 +60,11 @@ connectDB()
     logger.error('MongoDB connection error', 'db', err);
   });
 
-// Serve seed product images from data/images/ directory
-app.use('/images', express.static(path.join(process.cwd(), 'data', 'images')));
+// Safely serve seed product images only if the directory exists (prevents Vercel serverless ENOENT crashes)
+const imagesDir = path.join(process.cwd(), 'data', 'images');
+if (fs.existsSync(imagesDir)) {
+  app.use('/images', express.static(imagesDir));
+}
 
 app.get('/health', (req, res) => {
   res.json({
@@ -108,6 +112,5 @@ export const startServer = (port = PORT) => {
 if (process.argv[1] && process.argv[1].endsWith('server.js')) {
   startServer();
 }
-
 
 export default app;
