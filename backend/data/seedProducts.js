@@ -19,7 +19,6 @@ const getImage = (filename) => {
   return `/images/${filename}`;
 };
 
-
 export const seedProducts = [
   // ── COOLERS ────────────────────────────────────────────
   {
