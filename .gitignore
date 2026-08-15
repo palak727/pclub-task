@@ -1,1 +1,17 @@
-node_modules
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Build outputs
+dist/
+frontend/dist/
+
+# Local databases/caches
+backend/.memory_store_data.json
+.DS_Store
