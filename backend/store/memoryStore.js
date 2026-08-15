@@ -10,8 +10,10 @@ export const setMemoryMode = (mode) => {
 
 export const isMemoryMode = () => memoryMode;
 
-// File-backed persistence helper for memory mode development
-const STORAGE_FILE = path.resolve('./.memory_store_data.json');
+// Use Vercel's writable /tmp directory in production, local path otherwise
+const STORAGE_FILE = process.env.NODE_ENV === 'production'
+  ? path.join('/tmp', '.memory_store_data.json')
+  : path.resolve('./.memory_store_data.json');
 
 const loadPersistedData = () => {
   try {
@@ -68,6 +70,5 @@ export const memoryStore = {
     }
   }
 };
-
 
 reloadSeedProducts();

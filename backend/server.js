@@ -66,6 +66,16 @@ if (fs.existsSync(imagesDir)) {
   app.use('/images', express.static(imagesDir));
 }
 
+// Root path route handler to prevent 404s on main domain visits
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'online',
+    service: 'iitk-marketplace-api',
+    message: 'Welcome to the IITK Marketplace API',
+    docs: '/health',
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({
     ok: true,
