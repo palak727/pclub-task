@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingCart, MessageCircle, Bookmark, MapPin, Tag, AlertCircle, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, MessageCircle, Bookmark, MapPin, Tag, AlertCircle, ShieldCheck, ImageOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import LazyImage from '../LazyImage/LazyImage';
 import { useShop } from '../../context/ShopContext';
@@ -11,20 +11,15 @@ const ProductDisplay = ({ product }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [reserving, setReserving] = useState(false);
 
-  // Combine primary image and images array safely so all available pictures show up in thumbnails
-  const rawImages = [];
-  if (product.image) rawImages.push(product.image);
+  const images = [];
+  if (product.image) images.push(product.image);
   if (Array.isArray(product.images)) {
     product.images.forEach((img) => {
-      if (img && !rawImages.includes(img)) {
-        rawImages.push(img);
+      if (img && !images.includes(img)) {
+        images.push(img);
       }
     });
   }
-
-  const images = rawImages.length > 0 
-    ? rawImages 
-    : ['https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'];
 
   useEffect(() => {
     if (images.length <= 1) return undefined;
@@ -73,9 +68,16 @@ const ProductDisplay = ({ product }) => {
     >
       <div>
         <div className="aspect-square rounded-2xl overflow-hidden mb-4 glass-card border border-slate-200 shadow-lg bg-slate-100 flex items-center justify-center">
-          <LazyImage src={images[selectedImage]} alt={product.name} className="w-full h-full object-contain" />
+          {images.length > 0 && images[selectedImage] ? (
+            <LazyImage src={images[selectedImage]} alt={product.name} className="w-full h-full object-contain" />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-slate-400 gap-2">
+              <ImageOff size={40} />
+              <span className="text-xs font-medium">No image available</span>
+            </div>
+          )}
         </div>
-        {images.length > 0 && (
+        {images.length > 1 && (
           <div className="flex gap-2 overflow-x-auto pb-2">
             {images.map((img, i) => (
               <button

@@ -7,7 +7,6 @@ const Item = ({ product = {} }) => {
   const productId = getProductId(product);
   const badge = getStatusBadge(product.status);
 
-  // Fallback image handling if neither image nor images array is present
   const displayImage = 
     product.image || 
     (Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : null) || 

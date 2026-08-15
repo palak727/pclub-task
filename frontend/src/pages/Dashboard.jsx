@@ -2,30 +2,36 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Plus, Package, ToggleLeft, ToggleRight, Upload, MapPin, Tag, AlertCircle } from 'lucide-react';
+import { Plus, Package, ToggleLeft, ToggleRight, Upload, MapPin, Tag, AlertCircle, ImageOff } from 'lucide-react';
 import LazyImage from '../components/LazyImage/LazyImage';
 import { useShop } from '../context/ShopContext';
 import { api, CONDITIONS, CATEGORIES, formatPrice, getProductId, getStatusBadge, HALLS } from '../utils/api';
 
 const STATUS_OPTIONS = ['available', 'reserved', 'sold'];
 
+const INITIAL_FORM_STATE = {
+  name: '',
+  description: '',
+  category: 'coolers',
+  new_price: '',
+  old_price: '',
+  hall: 'Hall 12',
+  condition: 'Barely Used',
+  defects: '',
+  image: '',
+};
+
 const Dashboard = () => {
   const { auth, token, createProduct, updateProductStatus, deleteProduct } = useShop();
   const navigate = useNavigate();
+  
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
-    name: '',
-    description: '',
-    category: 'coolers',
-    new_price: '',
-    old_price: '',
+    ...INITIAL_FORM_STATE,
     hall: auth?.user?.hall || 'Hall 12',
-    condition: 'Barely Used',
-    defects: '',
-    image: '',
   });
 
   useEffect(() => {
@@ -33,6 +39,7 @@ const Dashboard = () => {
       navigate('/login');
       return;
     }
+    
     api
       .get('/products/seller/mine', token)
       .then(setProducts)
@@ -40,11 +47,15 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
   }, [auth, token, navigate]);
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
     setUploading(true);
     try {
       const url = await api.upload(file, token);
@@ -65,44 +76,38 @@ const Dashboard = () => {
     }
 
     try {
-      const defaultPlaceholder = `https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80`;
-      const imgUrl = form.image || defaultPlaceholder;
-      
+      const imgUrl = form.image || '';
       const payload = {
         ...form,
         new_price: Number(form.new_price),
         old_price: form.old_price ? Number(form.old_price) : Number(form.new_price) * 1.3,
-        defects: form.defects ? form.defects.split(',').map((d) => d.trim()) : [],
-        // Explicitly format images as an array containing the uploaded or fallback image
-        images: [imgUrl],
+        defects: form.defects ? form.defects.split(',').map((d) => d.trim()).filter(Boolean) : [],
+        images: imgUrl ? [imgUrl] : [],
         image: imgUrl,
       };
+
       const created = await createProduct(payload);
       setProducts((prev) => [created, ...prev]);
       setShowForm(false);
       setForm({
-        name: '',
-        description: '',
-        category: 'coolers',
-        new_price: '',
-        old_price: '',
+        ...INITIAL_FORM_STATE,
         hall: auth?.user?.hall || 'Hall 12',
-        condition: 'Barely Used',
-        defects: '',
-        image: '',
       });
+      toast.success('Listing published successfully!');
     } catch (err) {
       toast.error(err.message || 'Failed to create listing');
     }
   };
 
   const handleToggleStatus = async (product) => {
+    const productId = getProductId(product);
     const current = STATUS_OPTIONS.indexOf(product.status);
     const next = STATUS_OPTIONS[(current + 1) % STATUS_OPTIONS.length];
+    
     try {
-      const updated = await updateProductStatus(getProductId(product), next);
+      const updated = await updateProductStatus(productId, next);
       setProducts((prev) =>
-        prev.map((p) => (String(getProductId(p)) === String(getProductId(product)) ? updated : p))
+        prev.map((p) => (String(getProductId(p)) === String(productId) ? updated : p))
       );
     } catch (err) {
       toast.error(err.message || 'Failed to update status');
@@ -110,11 +115,13 @@ const Dashboard = () => {
   };
 
   const handleDeleteProduct = async (product) => {
+    const productId = getProductId(product);
     if (!window.confirm(`Delete "${product.name}" from your listings?`)) return;
 
     try {
-      await deleteProduct(getProductId(product));
-      setProducts((prev) => prev.filter((p) => String(getProductId(p)) !== String(getProductId(product))));
+      await deleteProduct(productId);
+      setProducts((prev) => prev.filter((p) => String(getProductId(p)) !== String(productId)));
+      toast.success('Listing deleted');
     } catch (err) {
       toast.error(err.message || 'Failed to delete listing');
     }
@@ -131,7 +138,10 @@ const Dashboard = () => {
             Manage your campus items, {auth.user.name} ({auth.user.hall || 'Hall 12'})
           </p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="btn-primary flex items-center gap-2 shadow-lg">
+        <button 
+          onClick={() => setShowForm(!showForm)} 
+          className="btn-primary flex items-center gap-2 shadow-lg"
+        >
           <Plus size={18} />
           {showForm ? 'Close Form' : 'Post New Item'}
         </button>
@@ -173,7 +183,7 @@ const Dashboard = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 mb-1">Selling Price (₹) *</label>
+              <label className="text-xs font-bold text-slate-700 mb-1 block">Selling Price (₹) *</label>
               <input
                 name="new_price"
                 type="number"
@@ -186,7 +196,7 @@ const Dashboard = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 mb-1">Original Price (₹)</label>
+              <label className="text-xs font-bold text-slate-700 mb-1 block">Original Price (₹)</label>
               <input
                 name="old_price"
                 type="number"
@@ -296,15 +306,21 @@ const Dashboard = () => {
           <h2 className="text-lg font-bold text-navy mb-2">Your Active Listings ({products.length})</h2>
           {products.map((product) => {
             const badge = getStatusBadge(product.status);
+            const productId = getProductId(product);
+
             return (
               <motion.div
-                key={getProductId(product)}
+                key={productId}
                 layout
                 className="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center border border-slate-200 justify-between"
               >
                 <div className="flex items-center gap-4 min-w-0 w-full sm:w-auto">
-                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-100 flex items-center justify-center bg-slate-50">
-                    <LazyImage src={product.image} alt={product.name} className="w-full h-full object-contain" />
+                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-100 flex items-center justify-center bg-slate-50 text-slate-400">
+                    {product.image ? (
+                      <LazyImage src={product.image} alt={product.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <ImageOff size={24} />
+                    )}
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-navy line-clamp-1">{product.name}</h3>
