@@ -90,14 +90,14 @@ const ShopContextProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    const data = await api.post('/api/auth/login', { email, password });
+    const data = await api.post('/auth/login', { email, password });
     setAuth(data);
     toast.success(`Welcome back, ${data.user?.name || 'IITKian'}!`);
     return data;
   };
 
   const register = async (form) => {
-    const data = await api.post('/api/auth/register', form);
+    const data = await api.post('/auth/register', form);
     setAuth(data);
     toast.success('Account created successfully!');
     return data;
@@ -111,11 +111,11 @@ const ShopContextProvider = ({ children }) => {
     toast.success('Logged out');
   };
 
-  const requestOTP = (email) => api.post('/api/auth/otp/request', { email });
-  const verifyOTP = (email, otp) => api.post('/api/auth/otp/verify', { email, otp });
-  const requestResetOTP = (email) => api.post('/api/auth/reset-otp/request', { email });
+  const requestOTP = (email) => api.post('/auth/otp/request', { email });
+  const verifyOTP = (email, otp) => api.post('/auth/otp/verify', { email, otp });
+  const requestResetOTP = (email) => api.post('/auth/reset-otp/request', { email });
   const resetPassword = ({ email, otp, newPassword }) =>
-    api.post('/api/auth/reset-password', { email, otp, newPassword });
+    api.post('/auth/reset-password', { email, otp, newPassword });
 
   const addToCart = (itemId) => {
     const product = all_product.find((p) => String(getProductId(p)) === String(itemId));
