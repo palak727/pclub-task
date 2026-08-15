@@ -1,92 +1,98 @@
-# Getting Started with Create React App
-This is a Campus shopping website where Y20s before leaving can sell their belongings. 
+# IITK Campus Marketplace
 
+A campus marketplace for IIT Kanpur students to buy and sell used essentials such as coolers, mattresses, cycles, appliances, and study materials. The platform supports verified @iitk.ac.in authentication, OTP-based flows, listing management, cart actions, filtered discovery, and real-time buyer-seller chat.
 
-Shop- Marketplace
-Assets-contains all images
-LoginSignUp-login page
-ProductDisplay-Product Preview
-all_product-contains all product information
-footer- adding iitk footer to each page
-ShopCategory- for classifying all product into coolers,matresses and cycles
-NewCollection-a part in Shop page showing all new items
-Cart: For adding products to cart.\
- Google drive Link-https://drive.google.com/open?id=1-V6hUBISvxexzsm-u5TcC3_br7h-G7tu&usp=drive_fs
+## Project summary for resume
 
+Built a full-stack campus marketplace that helps IITK students buy and sell everyday essentials securely and efficiently. The system includes verified student authentication, OTP-based account flows, product listing and filtering, cart management, seller dashboards, and live messaging for item inquiries. The platform is designed for real campus use, with a resilient in-memory fallback and production-oriented architecture details for local development and deployment readiness.
 
+## Stack
 
+- Frontend: React + Vite + Tailwind CSS
+- Backend: Node.js + Express + Socket.IO
+- Database: MongoDB with a resilient in-memory fallback for local development
+- Auth and security: JWT-based session handling and OTP verification workflows
 
+## Architecture overview
 
- 
+- Frontend: Vite single-page app that renders the product catalog, dashboard, cart, and chat experience.
+- Backend API: Express routes for authentication, product management, chat history, and seller workflows.
+- Database layer: MongoDB is the primary persistent store; the app automatically falls back to an in-memory store when no valid connection is configured.
+- Message system: Socket.IO handles real-time buyer-seller communication with conversation IDs scoped to a user + product pair so distinct inquiries remain isolated.
+- Queueing and async flow: OTP/email delivery is handled in a non-blocking style so the app can keep serving requests without waiting on mail transport delays.
+- Auth flow: JWT tokens are generated on login and validated for protected routes, while OTP verification enforces IITK-only access.
 
+## Production-ready details
 
+- Environment configuration is managed through environment variables such as MONGO_URI, JWT_SECRET, and optional email credentials.
+- Health checks are exposed at /health for deployment probes and service monitoring.
+- Logging is kept simple and explicit through console-based startup and connection messages.
+- The app is structured to support a clean local/dev mode and future deployment to a managed host or container environment.
+- Route-level guards and request validation help protect the API from malformed requests.
 
+## Project layout
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- frontend/: Vite frontend app
+- backend/: Express API, chat socket handlers, MongoDB models, product, and auth logic
+- README.md: project overview and setup guide
 
-## Available Scripts
+## Local setup
 
-In the project directory, you can run:
+1. Install backend dependencies
+   ```bash
+   cd backend
+   npm install
+   ```
 
-### `npm start`
+2. Start the backend server
+   ```bash
+   npm start
+   ```
+   The API runs on http://localhost:5000
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+3. Install frontend dependencies
+   ```bash
+   cd ../frontend
+   npm install
+   ```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+4. Start the frontend app
+   ```bash
+   npm run dev
+   ```
+   The app runs on http://localhost:5173
 
-### `npm test`
+5. Optional: run automated checks
+   ```bash
+   cd ../backend
+   npm test
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Environment notes
 
-### `npm run build`
+- The backend uses MongoDB when MONGO_URI is set.
+- If MONGO_URI is missing or invalid, the app automatically falls back to in-memory storage for local development.
+- A /health endpoint returns app health and uptime for deployment checks.
+- For live email delivery, configure EMAIL_USER and EMAIL_PASS in the backend environment.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Core features
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Verified IITK mail registration and login
+- OTP request and verification flow
+- Product browsing by category, hall, and search filters
+- Paginated marketplace product lists for smoother browsing
+- Add-to-cart and cart total tracking
+- Seller product reservations and status updates
+- Real-time chat through Socket.IO
+- Reset password flow using OTP
+- Sold-item filtering from public listings
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Impact narrative
 
-### `npm run eject`
+Built a campus marketplace serving student sellers and buyers across IITK, with secure listing workflows, buyer-seller chat, and trusted student authentication. The platform supports real-time product inquiries, protected seller dashboards, and streamlined campus commerce for everyday essentials.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Notes
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- The app only accepts @iitk.ac.in email addresses for student authentication.
+- The frontend expects the backend at http://localhost:5000 unless VITE_API_BASE_URL is configured.
+- The app includes a default pagination model and a scoped conversation model to support more realistic product-specific messaging.
