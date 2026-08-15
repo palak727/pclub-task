@@ -1,7 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const imagesPath = path.join(process.cwd(), 'data', 'images');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+const imagesPath = path.join(__dirname, 'images');
 
 const images = fs.readdirSync(imagesPath)
   .filter(file => /\.(jpg|jpeg|png|webp)$/i.test(file));
@@ -13,6 +18,8 @@ const getImage = (filename) => {
 
   return `/images/${filename}`;
 };
+
+
 export const seedProducts = [
   // ── COOLERS ────────────────────────────────────────────
   {
