@@ -109,3 +109,5 @@ if (process.argv[1] && process.argv[1].endsWith('server.js')) {
   startServer();
 }
 
+
+export default app;
