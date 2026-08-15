@@ -60,7 +60,7 @@ connectDB()
     logger.error('MongoDB connection error', 'db', err);
   });
 
-// Safely serve seed product images only if the directory exists (prevents Vercel serverless ENOENT crashes)
+// Safely serve seed product images only if the directory exists 
 const imagesDir = path.join(process.cwd(), 'data', 'images');
 if (fs.existsSync(imagesDir)) {
   app.use('/images', express.static(imagesDir));
