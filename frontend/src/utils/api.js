@@ -4,16 +4,17 @@ const getBaseUrl = () => {
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
   }
-  // Hardcode localhost so requests hit local server reliably
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return `${window.location.origin}/api`;
+  }
   return 'http://localhost:5000/api';
 };
 
 const API_BASE = getBaseUrl();
 
-// Create an Axios instance with standard defaults
 const apiClient = axios.create({
   baseURL: API_BASE,
-  timeout: 10000, // 10s timeout to prevent infinite hanging
+  timeout: 10000,
 });
 
 export const CATEGORIES = [
