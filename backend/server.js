@@ -60,10 +60,10 @@ connectDB()
     logger.error('MongoDB connection error', 'db', err);
   });
 
-// Safely serve seed product images only if the directory exists 
-const imagesDir = path.join(process.cwd(), 'data', 'images');
+
+const imagesDir = path.join(process.cwd(), 'public'); 
 if (fs.existsSync(imagesDir)) {
-  app.use('/images', express.static(imagesDir));
+  app.use('/images', express.static(path.join(imagesDir, 'images')));
 }
 
 // Root path route handler to prevent 404s on main domain visits
