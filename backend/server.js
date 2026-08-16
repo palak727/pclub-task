@@ -61,9 +61,11 @@ connectDB()
   });
 
 
-const imagesDir = path.join(process.cwd(), 'public'); 
+const imagesDir = path.join(process.cwd(), '..', 'public'); 
 if (fs.existsSync(imagesDir)) {
   app.use('/images', express.static(path.join(imagesDir, 'images')));
+} else if (fs.existsSync(path.join(process.cwd(), 'public'))) {
+  app.use('/images', express.static(path.join(process.cwd(), 'public', 'images')));
 }
 
 // Root path route handler to prevent 404s on main domain visits

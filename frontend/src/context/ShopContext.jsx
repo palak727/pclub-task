@@ -70,23 +70,37 @@ const ShopContextProvider = ({ children }) => {
       return undefined;
     }
 
-    const s = io(SOCKET_URL, { auth: { token }, transports: ['websocket', 'polling'] });
+    // Try socket but don't fail hard if not supported (e.g., on Vercel)
+    let s;
+    try {
+      s = io(SOCKET_URL, { auth: { token }, transports: ['websocket', 'polling'] });
+      s.on('connect', () => {
+        api.get('/chat/unread', token).then((r) => setUnreadCount(r.count)).catch(() => {});
+      });
 
-    s.on('connect', () => {
+      s.on('chat:notification', () => {
+        setUnreadCount((count) => count + 1);
+        toast('New message received', { icon: '💬' });
+      });
+
+      s.on('user:online', ({ userId, online }) => {
+        setOnlineUsers((prev) => ({ ...prev, [userId]: online }));
+      });
+
+      setSocket(s);
+    } catch (err) {
+      console.warn('Socket connection failed, falling back to REST polling');
+    }
+
+    // REST Fallback Polling (crucial for Vercel serverless)
+    const pollInterval = setInterval(() => {
       api.get('/chat/unread', token).then((r) => setUnreadCount(r.count)).catch(() => {});
-    });
+    }, 5000);
 
-    s.on('chat:notification', () => {
-      setUnreadCount((count) => count + 1);
-      toast('New message received', { icon: '💬' });
-    });
-
-    s.on('user:online', ({ userId, online }) => {
-      setOnlineUsers((prev) => ({ ...prev, [userId]: online }));
-    });
-
-    setSocket(s);
-    return () => s.disconnect();
+    return () => {
+      if (s) s.disconnect();
+      clearInterval(pollInterval);
+    };
   }, [token]);
 
   const login = async (email, password) => {
@@ -228,25 +242,30 @@ const ShopContextProvider = ({ children }) => {
 
   const closeChat = () => setActiveChat(null);
 
-  const sendMessage = (text) => {
-    if (!socket || !activeChat || !auth || !auth.user) return;
+  const sendMessage = async (text) => {
+    if (!activeChat || !auth || !auth.user) return;
 
     const productId = String(activeChat.productId || getProductId(activeChat.product));
     const conversationId = [auth.user.id, activeChat.sellerId].sort().join('_') + `_${productId}`;
 
-    socket.emit('chat:join', { conversationId });
-    socket.emit('chat:send', {
-      receiverId: activeChat.sellerId,
-      productId,
-      text,
-      product: {
-        id: productId,
-        name: activeChat.product.name,
-        new_price: activeChat.product.new_price,
-        status: activeChat.product.status,
-        image: activeChat.product.image,
-      },
-    });
+    // On Vercel, sockets won't work, so we rely on the REST API
+    try {
+      await api.post(`/chat/conversation/${conversationId}/message`, {
+        receiverId: activeChat.sellerId,
+        productId,
+        text,
+        product: {
+          id: productId,
+          name: activeChat.product.name,
+          new_price: activeChat.product.new_price,
+          status: activeChat.product.status,
+          image: activeChat.product.image,
+        },
+      }, token);
+    } catch (err) {
+      toast.error('Failed to send message');
+      console.error(err);
+    }
   };
 
   const value = useMemo(

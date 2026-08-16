@@ -52,7 +52,9 @@ const ChatWidget = () => {
 
     fetchHistory();
 
-    if (socket) {
+    let pollInterval;
+
+    if (socket && socket.connected) {
       socket.emit('chat:join', { conversationId });
 
       const handler = (msg) => {
@@ -68,6 +70,10 @@ const ChatWidget = () => {
 
       socket.on('chat:message', handler);
       return () => socket.off('chat:message', handler);
+    } else {
+      // Fallback for Vercel Serverless where WebSockets fail
+      pollInterval = setInterval(fetchHistory, 3000);
+      return () => clearInterval(pollInterval);
     }
   }, [socket, activeChat, auth, currentUserId, sellerId]);
 

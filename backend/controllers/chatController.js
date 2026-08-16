@@ -149,3 +149,42 @@ export const markAsRead = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+export const sendMessageRest = async (req, res) => {
+  const { conversationId } = req.params;
+  const { receiverId, productId, text, product } = req.body;
+  const userId = String(req.user.id || req.user._id);
+
+  try {
+    const message = await saveMessage({
+      conversationId,
+      senderId: userId,
+      senderName: req.user.name || 'IITKian',
+      receiverId,
+      productId: productId || '',
+      text,
+    });
+
+    const payload = message || {
+      conversationId,
+      senderId: userId,
+      senderName: req.user.name || 'IITKian',
+      receiverId,
+      productId,
+      text,
+      createdAt: new Date(),
+    };
+
+    if (req.io) {
+      req.io.to(conversationId).emit('chat:message', { ...payload, product });
+      const receiverSocket = req.app?.get('onlineUsers')?.get(receiverId);
+      if (receiverSocket) {
+        req.io.to(receiverSocket).emit('chat:notification', payload);
+      }
+    }
+
+    return res.status(201).json(payload);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};

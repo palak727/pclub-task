@@ -6,6 +6,7 @@ import {
   markAsRead,
   saveMessage,
   buildConversationId,
+  sendMessageRest,
 } from '../controllers/chatController.js';
 import { authMiddleware } from '../middleware/auth.js';
 
@@ -18,6 +19,7 @@ export const setupChatRoutes = (r) => {
   r.get('/unread', authMiddleware, getUnreadCount);
   r.get('/conversation/:conversationId', authMiddleware, getConversationMessages);
   r.post('/conversation/:conversationId/read', authMiddleware, markAsRead);
+  r.post('/conversation/:conversationId/message', authMiddleware, sendMessageRest);
 };
 
 setupChatRoutes(router);
