@@ -10,7 +10,9 @@ const connectDB = async () => {
   }
 
   try {
-    const conn = await mongoose.connect(uri);
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 3000, // Fail fast after 3s so frontend doesn't timeout (10s)
+    });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     setMemoryMode(false);
     return true;
